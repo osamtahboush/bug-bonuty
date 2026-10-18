@@ -1,0 +1,2 @@
+# this url help to find all domin or sub from archive
+https://web.archive.org/cdx/search/cdx?url=https://launchdarkly.com/docs/*&output=txt&fl=original&collapse=urlkey&page=/
