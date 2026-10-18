@@ -1,0 +1,14 @@
+
+nuclei -u http://challenge01.root-me.org/ -t ~/nuclei-templates/ -severity low,medium,high
+
+
+ffuf -u https://docs.launchdarkly.com/FUZZ -w ~/wordlists/raft-large-directories.txt -mc 200,301,302,403
+
+
+nuclei -u http://challenge01.root-me.org -t http/ -severity low,medium,high,critical 
+nuclei -l subs.txt -t http/takeovers/ -o takeovers.txt
+nuclei -l subs.txt -t exposures/ -o exposures.txt
+
+
+trufflehog git https://github.com/launchdarkly/LaunchDarkly-Docs
+
