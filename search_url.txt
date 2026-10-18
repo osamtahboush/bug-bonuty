@@ -1,2 +1,44 @@
 # this url help to find all domin or sub from archive
 https://web.archive.org/cdx/search/cdx?url=https://launchdarkly.com/docs/*&output=txt&fl=original&collapse=urlkey&page=/
+
+
+subfinder -d challenge01.root-me.org -all -silent | tee subs.txt
+amass enum -passive -d challenge01.root-me.org
+whatweb -a 3 https://docs.launchdarkly.com
+katana -u https://docs.launchdarkly.com -d 3 -jc -kf -o crawled.txt
+
+subfinder -d launchdarkly.com -silent | while read sub; do
+  cname=$(dig +short CNAME $sub)
+  [ -n "$cname" ] && echo "$sub -> $cname"
+done
+
+#---------------
+#!/bin/bash
+# 00-fingerprint.sh
+T="https://launchdarkly.com/docs"
+
+echo "[*] الرؤوس والتحويلات"
+curl -sIL "$T" | grep -iE "^(HTTP|location|server|x-powered|cf-|via)"
+
+echo "[*] خريطة الصفحات عبر llms.txt"
+curl -s "$T/llms.txt" | head -40
+
+echo "[*] نسخة llms كاملة (إن وُجدت)"
+curl -s -o /dev/null -w "llms-full.txt -> HTTP %{http_code}\n" "$T/llms-full.txt"
+
+echo "[*] Sitemap و robots"
+curl -s "https://launchdarkly.com/sitemap.xml" | grep -oE 'https://[^<]+' | head -30
+curl -s "https://launchdarkly.com/robots.txt"
+
+echo "[*] فحص إدراج قائمة S3 (misconfiguration)"
+curl -s "https://fdr-prod-docs-files-public.s3.us-east-1.amazonaws.com/?list-type=2&max-keys=5"
+
+#------ get js file and analysis
+#!/bin/bash
+# 03-js-extract.sh — استخراج ملفات JS ثم تحليلها
+curl -s "https://launchdarkly.com/docs/home" \
+  | grep -oE '(src|href)="[^"]+\.js[^"]*"' \
+  | sed -E 's/.*="//; s/"$//' | sort -u > js.txt
+wc -l js.txt
+
+
