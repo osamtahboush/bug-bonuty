@@ -1,0 +1,8 @@
+# فحص أسرار في مستودع المستندات
+trufflehog git https://github.com/launchdarkly/LaunchDarkly-Docs
+
+# فحص ثابت للكود
+semgrep scan --config auto --json github.com/launchdarkly/LaunchDarkly-Docs
+
+# معاينة التدريج (ميزات EAP غير المنشورة)
+curl -s -o /dev/null -w "%{http_code}\n" "https://docs-stg.launchdarkly.com/1/"
